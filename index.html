@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#10161D">
+<meta name="description" content="A training log for juggling and partner acro. Positions are nodes, skills are edges, sequences are paths.">
+<title>Trilha</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ---------- sign in ---------- -->
+<div class="gate" id="gate" hidden>
+  <div class="box">
+    <div class="wordmark">Trilha<span>.</span></div>
+    <div class="lede">Positions, skills, and the paths between them. Sign in and your deck follows you from the gym to the laptop.</div>
+    <div class="warn" id="cfgWarn" hidden>
+      <b>Not configured yet.</b><br>
+      Open <code>config.js</code> and fill in your Supabase project URL and anon key. See the README.
+    </div>
+    <form id="authForm">
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" type="email" autocomplete="email" required placeholder="you@example.com">
+      </div>
+      <button class="btn primary" style="width:100%" type="submit" id="authBtn">Send me a sign-in link</button>
+    </form>
+    <div class="note" id="authNote">No password. You'll get a one-time link by email — open it on whichever device you want to use.</div>
+  </div>
+</div>
+
+<!-- ---------- app ---------- -->
+<div class="app" id="app" hidden>
+  <header>
+    <div class="wordmark">Trilha<span>.</span></div>
+    <div class="tag">positions, skills, and the paths between them</div>
+    <div class="disc" id="disc">
+      <button data-d="juggling" aria-pressed="true">Juggling</button>
+      <button data-d="acro" aria-pressed="false">Acro</button>
+    </div>
+  </header>
+
+  <nav id="nav">
+    <button data-v="skills" aria-pressed="true"><span class="dot"></span>Skills</button>
+    <button data-v="log" aria-pressed="false"><span class="dot"></span>Log</button>
+    <button data-v="build" aria-pressed="false"><span class="dot"></span>Build</button>
+    <button data-v="map" aria-pressed="false"><span class="dot"></span>Map</button>
+  </nav>
+
+  <main id="main"><div class="loading">Loading your deck…</div></main>
+
+  <div class="foot">
+    <span class="sync" id="sync"><b></b><span id="syncTxt">Synced</span></span>
+    <button id="export">Export JSON</button>
+    <button id="signout">Sign out</button>
+  </div>
+</div>
+
+<div id="sheetHost"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
