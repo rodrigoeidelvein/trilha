@@ -52,6 +52,13 @@ repair needs, so the view can offer to strip exactly those entries from the
 saved row. Whether the port offers that repair is a Build-view question and is
 left open — the return shape does not foreclose it.
 
+**Amended by ADR-0008.** The first consequence above no longer holds. The live
+chain is persisted in `useUi`, so it outlives the reload after which `pull()`
+can delete a Skill out from under it, with no local delete to hook a prune onto.
+The Build view therefore resolves the live chain exactly as it resolves a loaded
+one, and `missing` is meaningful for both. The decision and the return shape are
+unchanged — which is why absorbing this cost nothing.
+
 **`resolveSequence` lives in `graph.ts`** rather than a new `domain/sequence.ts`.
 It is not graph traversal, but splitting one pure function into its own file to
 satisfy a taxonomy is the abstraction-for-its-own-sake the working agreement

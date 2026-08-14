@@ -96,3 +96,13 @@ _Avoid_: balls, objects
 **Run**:
 The number of consecutive catches in one uninterrupted attempt. "Best run" is
 the longest one in a session — the juggling measure of how it went.
+
+### The app
+
+**Deck**:
+Everything the user has recorded — every Position, Skill, Sequence and LogEntry,
+both disciplines together — held as one local copy the app renders from and
+Supabase replicates. The app is local-first, so the deck is the authority and
+the server is the replica; "Loading your deck…" is the one state where no local
+copy exists yet.
+_Avoid_: data, database, collection, library

@@ -105,6 +105,12 @@ entirely. The URL is uglier; nobody is sharing these links.
 Routing exists at all so the phone back button works. Do not replace it with
 `useState` tabs.
 
+The four views are the four routes and are the *only* thing in the URL —
+discipline, board mode and the Build chain live in `useUi`. Links change where
+you are, buttons change what you are doing. See ADR-0008. The Supabase client
+uses the PKCE flow, because the implicit flow returns the session in the URL
+fragment and under `HashRouter` the fragment is the route (ADR-0009).
+
 ### Why plain CSS and not Tailwind
 
 The design system encodes two dimensions in one channel:
@@ -139,7 +145,7 @@ src/
     seed.ts        first-run content
   store/
     useDeck.ts     the deck + optimistic sync
-    useUi.ts       view, discipline, chain-in-progress
+    useUi.ts       discipline, chain-in-progress, board mode (view is the route)
   features/
     skills/ log/ build/ map/ auth/
   components/      shared primitives only (Sheet, Toast, Seg, Card)
@@ -198,7 +204,9 @@ bun run gen:types  # regenerate src/data/db.types.ts from the live schema
 
 **Vite env vars are baked in at build time.** `VITE_SUPABASE_URL` and
 `VITE_SUPABASE_ANON_KEY` come from `.env.local` in dev and from GitHub Actions
-secrets in CI. This is why Pages is deployed by a workflow rather than served
+secrets in CI. A missing one throws in `vite.config.ts`, so there is no
+"unconfigured" runtime state and the client is never null (ADR-0010). This is
+why Pages is deployed by a workflow rather than served
 from a branch.
 
 **The anon key is public and that is fine.** It's an identifier, not a secret;
