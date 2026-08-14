@@ -106,3 +106,18 @@ Supabase replicates. The app is local-first, so the deck is the authority and
 the server is the replica; "Loading your deck…" is the one state where no local
 copy exists yet.
 _Avoid_: data, database, collection, library
+
+**Hue**:
+The colour channel that carries Discipline — amber for juggling, teal for acro.
+It is one custom property, `--hue`, reassigned on the root element when the
+Discipline changes, and every rule downstream reads it rather than naming a
+colour. Saying "the amber one" in code is a mistake; the rule is that nothing
+below the root knows which Discipline it is drawing.
+_Avoid_: theme, colour scheme, brand colour
+
+**Ramp**:
+The three rungs — `--i-want`, `--i-working`, `--i-got` — by which Status is shown
+as intensity. The ramp is the *rung*, not the recipe: a Skill card spends it on a
+border colour, the Map on a stroke's opacity, the legend on a swatch. One Status
+therefore looks consistent across surfaces that share no other styling.
+_Avoid_: scale, opacity levels, shades
