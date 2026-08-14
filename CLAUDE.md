@@ -31,9 +31,10 @@ makes sense.
 - A **Skill** is a directed edge — it takes you *from* one position *to*
   another. "Barrel roll" is not a thing you have, it's the edge from Bird to
   Reverse Bird.
-- A **Sequence** is an ordered list of skills. It is *valid* when each skill
-  starts where the previous one ended. It is *closed* (a washing machine) when
-  the last skill lands back on the first skill's starting position.
+- A **Sequence** is an ordered list of skills. It is *connected* when each skill
+  starts where the previous one ended. It is a *loop* (a washing machine) when
+  it is connected **and** the last skill lands back on the first skill's
+  starting position.
 - A **LogEntry** records one attempt at one skill on one day.
 
 Consequences you must respect:
@@ -43,7 +44,7 @@ Consequences you must respect:
 - Positions are first-class rows, never free-text strings on a skill. The whole
   point is that "hip key" and "hipkey" must be the same node. Never introduce a
   `string` position field.
-- Sequence validity is **derived**, never stored. Compute it from the graph.
+- Sequence connectivity is **derived**, never stored. Compute it from the graph.
 
 ### The two disciplines are not symmetric
 
@@ -127,7 +128,7 @@ that isn't a token, add a token.
 src/
   domain/          Pure TypeScript. No React. No Supabase. No I/O.
     types.ts       Position, Skill, LogEntry, Sequence, Discipline, Status
-    graph.ts       validity, cycles, bridges, reachability
+    graph.ts       sequence resolution, connectivity, loops, bridges
     siteswap.ts    siteswap validation and ball count
     *.test.ts      bun test lives next to the code
   data/
