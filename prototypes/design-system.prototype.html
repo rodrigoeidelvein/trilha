@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en" data-discipline="juggling">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trilha — design system prototype (#7)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<!-- ================================================================
+     THROWAWAY PROTOTYPE — issue #7. Not the app. Open by double-click.
+
+     Question: does the prototype's design system survive being split
+     into tokens.css + base.css + CSS modules, with the runtime hue
+     swap moved off a JS style write and onto a root data attribute —
+     and does the Map's SVG, which encodes status in presentation
+     attributes, still work once those become CSS?
+
+     What is meant to be lifted out of here is the CSS in the three
+     blocks marked LIFT below. Everything else is scaffolding.
+     ================================================================ -->
+
+<!-- ================================================================
+     LIFT 1 — src/styles/tokens.css   (global, imported once in main.tsx)
+     Literal values are allowed *here* and nowhere else.
+     ================================================================ -->
+<style id="lift-tokens">
+:root{
+  /* ---- ground: the fixed palette ---- */
+  --ink:#10161D;
+  --surface:#18222C;
+  --surface2:#202D39;
+  --line:#2E3E4C;
+  --chalk:#E9EFF4;
+  --muted:#7E93A4;
+
+  /* ---- discipline lives in the hue channel ---- */
+  --juggle:#FFB627;
+  --acro:#2FD9C4;
+  --hue:var(--juggle);
+  --on-hue:#0C1116;            /* was hardcoded at styles.css:56 */
+
+  /* ---- alarm ---- */
+  --warn:#FF7A6B;
+  --warn-line:color-mix(in srgb,var(--warn) 35%,transparent);   /* was rgba() x3 */
+  --warn-wash:color-mix(in srgb,var(--warn) 7%,transparent);
+  --scrim:rgba(8,12,16,.7);    /* genuinely darker than --ink; not a mix of it */
+
+  /* ---- status lives in the intensity channel: three rungs, one ramp ---- */
+  --i-want:22%;
+  --i-working:55%;
+  --i-got:100%;
+
+  /* ---- type ---- */
+  --font:"Space Grotesk",system-ui,sans-serif;
+  --font-mono:"Space Mono",ui-monospace,monospace;
+
+  /* ---- geometry ---- */
+  --r-xs:5px;
+  --r:10px;
+  --r-lg:16px;
+  --r-pill:99px;
+}
+
+/* The runtime swap. One line replaces documentElement.style.setProperty. */
+:root[data-discipline="acro"]{ --hue:var(--acro); }
+</style>
+
+<!-- ================================================================
+     LIFT 2 — src/features/skills/SkillCard.module.css
+     Class names below are hand-hashed (_card_k3f9) to prove that
+     nothing downstream depends on the global name surviving.
+     ================================================================ -->
+<style id="lift-card">
+._card_k3f9{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--r);
+  padding:12px 13px;
+  text-align:left;
+  width:100%;
+  transition:border-color .15s,transform .1s;
+}
+._card_k3f9:hover{ border-color:var(--muted) }
+._card_k3f9:active{ transform:scale(.99) }
+._nm_k3f9{ font-weight:500;font-size:14.5px;line-height:1.25 }
+._aka_k3f9{ color:var(--muted);font-size:12px;margin-top:2px }
+._path_k3f9{
+  display:flex;align-items:center;gap:6px;margin-top:9px;
+  font-size:11.5px;color:var(--muted);font-family:var(--font-mono);flex-wrap:wrap;
+}
+._arw_k3f9{ color:var(--hue);opacity:.7 }
+._ss_k3f9{
+  display:inline-block;font-family:var(--font-mono);font-weight:700;font-size:12px;
+  padding:1px 6px;border-radius:var(--r-xs);
+  background:color-mix(in srgb,var(--hue) 16%,transparent);
+  color:var(--hue);
+}
+
+/* status = intensity. The rung comes from the ramp; the recipe is local. */
+._card_k3f9[data-status="want"]{ border-style:dashed;opacity:.72 }
+._card_k3f9[data-status="want"] ._nm_k3f9{ font-weight:400 }
+._card_k3f9[data-status="working"]{
+  border-left:3px solid color-mix(in srgb,var(--hue) var(--i-working),transparent);
+}
+/* got is the top of the ramp, so the mix would be the identity — say var(--hue).
+   Verified: color-mix(...var(--i-got)...) computes to the same colour, but
+   serialises as color(srgb …) instead of rgb(…), which is noise in devtools. */
+._card_k3f9[data-status="got"]{
+  border-left:3px solid var(--hue);
+  background:color-mix(in srgb,var(--hue) 7%,var(--surface));
+}
+</style>
+
+<!-- ================================================================
+     LIFT 3 — src/features/map/Map.module.css
+     The hard case. Appearance moves to CSS; geometry stays an
+     attribute, because geometry is data and appearance is design.
+     ================================================================ -->
+<style id="lift-map">
+._edge_p2m8{ fill:none;stroke:var(--hue);stroke-width:1.5 }
+._edge_p2m8[data-status="want"]{ stroke-opacity:var(--i-want);stroke-dasharray:4 4 }
+._edge_p2m8[data-status="working"]{ stroke-opacity:var(--i-working) }
+._edge_p2m8[data-status="got"]{ stroke-opacity:var(--i-got);stroke-width:2.2 }
+
+._loop_p2m8{ fill:none;stroke:var(--hue);stroke-width:1.6 }
+._loop_p2m8[data-status="want"]{ stroke-opacity:var(--i-want);stroke-dasharray:3 3 }
+._loop_p2m8[data-status="working"]{ stroke-opacity:var(--i-working) }
+._loop_p2m8[data-status="got"]{ stroke-opacity:var(--i-got) }
+
+._node_p2m8{ fill:var(--surface2);stroke:var(--hue);stroke-opacity:.4;stroke-width:1.6 }
+._node_p2m8[data-solid="true"]{ fill:var(--hue);stroke-opacity:1 }
+
+._label_p2m8{ fill:var(--chalk);font-size:12.5px }   /* font-family inherits */
+
+._legend_p2m8{ display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--muted) }
+._legend_p2m8 i{
+  display:inline-block;width:20px;height:0;margin-right:6px;vertical-align:middle;
+  border-top:2px solid color-mix(in srgb,var(--hue) var(--rung),transparent);
+}
+._legend_p2m8 [data-status="want"] i{ --rung:var(--i-want);border-top-style:dashed }
+._legend_p2m8 [data-status="working"] i{ --rung:var(--i-working) }
+._legend_p2m8 [data-status="got"] i{ --rung:var(--i-got) }
+</style>
+
+<!-- ================================================================
+     REFERENCE — the current styles.css rules, verbatim, prefixed with
+     .ref so the two renderings can sit side by side. Do not lift.
+     ================================================================ -->
+<style id="reference">
+.ref .card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 13px;text-align:left;width:100%;transition:border-color .15s,transform .1s}
+.ref .card:hover{border-color:var(--muted)}
+.ref .card .nm{font-weight:500;font-size:14.5px;line-height:1.25}
+.ref .card .aka{color:var(--muted);font-size:12px;margin-top:2px}
+.ref .card .path{display:flex;align-items:center;gap:6px;margin-top:9px;font-size:11.5px;color:var(--muted);font-family:"Space Mono",monospace;flex-wrap:wrap}
+.ref .card .path .arw{color:var(--hue);opacity:.7}
+.ref .ss{display:inline-block;font-family:"Space Mono",monospace;font-weight:700;font-size:12px;padding:1px 6px;border-radius:5px;background:color-mix(in srgb,var(--hue) 16%,transparent);color:var(--hue)}
+.ref .st-want{border-style:dashed;opacity:.72}
+.ref .st-want .nm{font-weight:400}
+.ref .st-working{border-left:3px solid color-mix(in srgb,var(--hue) 55%,transparent)}
+.ref .st-got{border-left:3px solid var(--hue);background:color-mix(in srgb,var(--hue) 7%,var(--surface))}
+.ref .legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--muted)}
+.ref .legend i{display:inline-block;width:20px;height:0;border-top:2px solid;margin-right:6px;vertical-align:middle}
+</style>
+
+<!-- ================================================================
+     base.css candidate + prototype harness chrome.
+     The harness uses violet so it is obviously not the design.
+     ================================================================ -->
+<style id="shell">
+/* --- base.css candidate (the parts this prototype exercises) --- */
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--ink);color:var(--chalk);
+  font-family:var(--font);font-size:15px;line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+}
+button{cursor:pointer;background:none;border:none;font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--hue);outline-offset:2px}
+svg{display:block;width:100%;height:auto}
+.board{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;align-items:start}
+.col-head{display:flex;align-items:center;gap:8px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.col-head b{color:var(--chalk);font-weight:700}
+.count{margin-left:auto;font-family:var(--font-mono);font-size:12px;color:var(--muted)}
+.stack{display:flex;flex-direction:column;gap:9px;min-height:40px}
+.mapwrap{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);overflow:hidden}
+
+/* --- harness --- */
+:root{--proto:#C08CFF}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 22px 90px}
+h1{font-size:22px;letter-spacing:-.02em;margin-bottom:6px}
+.lede{color:var(--muted);font-size:14px;max-width:70ch;line-height:1.55}
+.lede b{color:var(--chalk);font-weight:500}
+.protobar{
+  border:1px solid var(--proto);border-radius:var(--r);
+  background:color-mix(in srgb,var(--proto) 8%,transparent);
+  padding:14px 16px;margin:22px 0;
+}
+.protobar h2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--proto);margin-bottom:10px}
+.ctl{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ctl button{
+  padding:6px 12px;border:1px solid var(--line);border-radius:var(--r-pill);
+  font-size:12.5px;color:var(--muted);
+}
+.ctl button[aria-pressed="true"]{border-color:var(--proto);color:var(--proto)}
+.ctl .lbl{font-size:12px;color:var(--muted);letter-spacing:.03em;margin-right:2px}
+.readout{
+  margin-top:12px;font-family:var(--font-mono);font-size:11.5px;color:var(--muted);
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:4px 18px;
+}
+.readout b{color:var(--chalk);font-weight:400}
+.readout .hit{color:var(--proto)}
+section{margin-top:34px}
+section > h2{font-size:16px;margin-bottom:4px}
+section > .sub{color:var(--muted);font-size:13px;margin-bottom:14px;max-width:74ch;line-height:1.5}
+.panes{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:900px){.panes{grid-template-columns:1fr}.board{grid-template-columns:1fr}}
+.pane{border:1px solid var(--line);border-radius:var(--r);padding:14px;background:color-mix(in srgb,var(--surface) 40%,transparent)}
+.pane > h3{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.pane.cand > h3{color:var(--proto)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.tabs button{padding:6px 12px;border:1px solid var(--line);border-radius:var(--r);font-size:12.5px;color:var(--muted)}
+.tabs button[aria-selected="true"]{border-color:var(--proto);color:var(--chalk);background:color-mix(in srgb,var(--proto) 10%,transparent)}
+.scenario p{font-size:13.5px;color:var(--muted);line-height:1.55;max-width:74ch;margin-bottom:12px}
+.steps{display:flex;flex-direction:column;gap:7px;max-width:640px}
+.step{
+  display:flex;align-items:center;gap:10px;text-align:left;
+  border:1px solid var(--line);border-radius:var(--r);padding:9px 12px;font-size:13px;color:var(--muted);
+}
+.step .n{font-family:var(--font-mono);font-size:11px;color:var(--muted);min-width:16px}
+.step[data-state="now"]{border-color:var(--proto);color:var(--chalk);background:color-mix(in srgb,var(--proto) 10%,transparent)}
+.step[data-state="done"]{opacity:.45}
+.step[data-state="done"] .n::after{content:" ✓"}
+.note{
+  border-left:2px solid var(--proto);padding:2px 0 2px 12px;margin-top:14px;
+  font-size:12.5px;color:var(--muted);line-height:1.55;max-width:74ch;
+}
+.note b{color:var(--chalk);font-weight:500}
+.sysfont{font-family:system-ui,sans-serif!important}
+.sysfont .mono,.sysfont ._path_k3f9,.sysfont ._ss_k3f9{font-family:ui-monospace,monospace!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Trilha — design system port</h1>
+<p class="lede">
+  A throwaway harness for <b>issue #7</b>. The prototype's <code>styles.css</code> encodes two
+  dimensions in one channel — <b>hue is discipline</b>, <b>intensity is status</b> — and it works
+  because <code>--hue</code> is reassigned on <code>:root</code> at runtime and every rule downstream
+  reads it. The question is whether that survives being split into
+  <b>tokens.css + base.css + CSS modules</b>, with the swap moved from a JS style write onto a
+  <code>data-discipline</code> attribute — and whether the <b>Map</b>, which writes
+  <code>stroke</code>, <code>fill</code> and <code>stroke-opacity</code> as SVG presentation
+  attributes, can express the same encoding in CSS instead.
+</p>
+
+<!-- ---------------- free play + readout ---------------- -->
+<div class="protobar">
+  <h2>Free play</h2>
+  <div class="ctl">
+    <span class="lbl">Discipline</span>
+    <button data-act="disc" data-v="juggling">Juggling</button>
+    <button data-act="disc" data-v="acro">Acro</button>
+    <span style="width:14px"></span>
+    <span class="lbl">Swap mechanism</span>
+    <button data-act="mech" data-v="attr">data-discipline attribute</button>
+    <button data-act="mech" data-v="js">JS setProperty (today)</button>
+    <span style="width:14px"></span>
+    <span class="lbl">Map encoding</span>
+    <button data-act="enc" data-v="css">CSS classes</button>
+    <button data-act="enc" data-v="attr">presentation attrs (today)</button>
+    <button data-act="enc" data-v="both">both at once</button>
+    <span style="width:14px"></span>
+    <button data-act="cycle">Cycle "441" status</button>
+    <button data-act="font">Kill the webfont</button>
+  </div>
+  <div class="readout" id="readout"></div>
+</div>
+
+<!-- ---------------- walkthroughs ---------------- -->
+<section>
+  <h2>Guided walkthroughs</h2>
+  <div class="sub">Each one resets to a known state, then walks the awkward case a step at a time.</div>
+  <div class="tabs" id="tabs"></div>
+  <div class="scenario" id="scenario"></div>
+</section>
+
+<!-- ---------------- skills board ---------------- -->
+<section>
+  <h2>Skills — the status board</h2>
+  <div class="sub">
+    Left is the port: global tokens plus a module whose class names are hashed, so nothing can be
+    depending on the name <code>.card</code>. Right is <code>styles.css</code> verbatim. They should
+    be indistinguishable, in both disciplines and all three statuses.
+  </div>
+  <div class="panes">
+    <div class="pane cand"><h3>tokens.css + SkillCard.module.css</h3><div id="boardCand"></div></div>
+    <div class="pane ref"><h3>styles.css (reference)</h3><div id="boardRef" class="ref"></div></div>
+  </div>
+</section>
+
+<!-- ---------------- map ---------------- -->
+<section>
+  <h2>Map — the hard case</h2>
+  <div class="sub">
+    Same graph, same JS, two ways of saying how solid a line is. Switch <b>Map encoding</b> above.
+    Under "both at once" every element carries the presentation attributes <i>and</i> the module
+    class, which is what a half-done port looks like — watch which one wins.
+  </div>
+  <div class="mapwrap"><svg id="map" viewBox="0 0 760 520" role="img" aria-label="Position graph"></svg></div>
+  <div id="legend"></div>
+  <div class="note" id="mapnote"></div>
+</section>
+
+</div>
+
+<script>
+/* ================================================================
+   The portable bit. Pure: no DOM, no handlers reaching inside.
+   Everything below it is scaffolding for clicking at.
+   ================================================================ */
+const DesignSystem = {
+  statuses: ['want', 'working', 'got'],
+  label: { want: 'Want', working: 'Working', got: 'Got it' },
+  next: st => ({ want: 'working', working: 'got', got: 'want' }[st]),
+
+  /* The encoding the prototype hardcodes in JS at app.js:350. The whole
+     question for the Map is whether this table has to exist at all. */
+  legacyOpacity: { want: .22, working: .55, got: 1 },
+
+  /* Two ways to say "the hue is now acro". Both write to :root; nothing
+     downstream can tell the difference, which is the point. */
+  applyDiscipline: (root, discipline, mechanism) => {
+    if (mechanism === 'attr') {
+      root.style.removeProperty('--hue');
+      root.dataset.discipline = discipline;
+    } else {
+      root.dataset.discipline = 'juggling';           // attribute parked
+      root.style.setProperty('--hue', discipline === 'juggling' ? 'var(--juggle)' : 'var(--acro)');
+    }
+  },
+};
+
+/* ---------------- scaffolding: data ---------------- */
+const POS = {
+  juggling: [
+    ['j_rest', 'Hands empty'], ['j_casc', 'Cascade'], ['j_rev', 'Reverse cascade'],
+    ['j_show', 'Shower'], ['j_box', 'Box'], ['j_mills', 'Mills Mess'], ['j_fount', 'Fountain'],
+  ],
+  acro: [
+    ['a_stand', 'Standing'], ['a_s2s', 'Shin to shin'], ['a_bird', 'Bird'],
+    ['a_rbird', 'Reverse bird'], ['a_throne', 'Throne'], ['a_whale', 'Whale'], ['a_star', 'Star'],
+  ],
+};
+const SKILLS = {
+  juggling: [
+    { id: 'k1', name: 'Cascade', aka: '3-ball cascade', ss: '3', props: 3, from: 'j_rest', to: 'j_casc', status: 'got' },
+    { id: 'k2', name: 'Reverse cascade', aka: 'outside throws', ss: '3', props: 3, from: 'j_casc', to: 'j_rev', status: 'got' },
+    { id: 'k3', name: 'Back to cascade', ss: '3', props: 3, from: 'j_rev', to: 'j_casc', status: 'got' },
+    { id: 'k4', name: '441', ss: '441', props: 3, from: 'j_casc', to: 'j_casc', status: 'working' },
+    { id: 'k5', name: '531', ss: '531', props: 3, from: 'j_casc', to: 'j_casc', status: 'working' },
+    { id: 'k6', name: 'Into shower', ss: '51', props: 3, from: 'j_casc', to: 'j_show', status: 'working' },
+    { id: 'k7', name: '423', ss: '423', props: 3, from: 'j_casc', to: 'j_casc', status: 'want' },
+    { id: 'k8', name: 'Box', ss: '(4,2x)(2x,4)', props: 3, from: 'j_casc', to: 'j_box', status: 'want' },
+    { id: 'k9', name: 'Mills Mess', ss: '3', props: 3, from: 'j_casc', to: 'j_mills', status: 'want' },
+    { id: 'k10', name: 'Fountain', aka: '4-ball fountain', ss: '4', props: 4, from: 'j_rest', to: 'j_fount', status: 'working' },
+  ],
+  acro: [
+    { id: 'a1', name: 'Pop to bird', from: 'a_stand', to: 'a_bird', status: 'got' },
+    { id: 'a2', name: 'Barrel roll', from: 'a_bird', to: 'a_rbird', status: 'got' },
+    { id: 'a3', name: 'Reverse barrel', from: 'a_rbird', to: 'a_bird', status: 'got' },
+    { id: 'a4', name: 'Bird to throne', from: 'a_bird', to: 'a_throne', status: 'working' },
+    { id: 'a5', name: 'Throne to whale', from: 'a_throne', to: 'a_whale', status: 'working' },
+    { id: 'a6', name: 'Shin to shin hold', from: 'a_s2s', to: 'a_s2s', status: 'working' },
+    { id: 'a7', name: 'Whale to star', from: 'a_whale', to: 'a_star', status: 'want' },
+    { id: 'a8', name: 'Star to standing', from: 'a_star', to: 'a_stand', status: 'want' },
+    { id: 'a9', name: 'Into shin to shin', from: 'a_stand', to: 'a_s2s', status: 'want' },
+  ],
+};
+
+/* ---------------- scaffolding: state ---------------- */
+const root = document.documentElement;
+const state = { discipline: 'juggling', mechanism: 'attr', encoding: 'css', sysfont: false };
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const posName = id => (POS.juggling.concat(POS.acro).find(p => p[0] === id) || [, '—'])[1];
+const skills = () => SKILLS[state.discipline];
+
+/* ---------------- render: skills board ---------------- */
+function cardCand(s) {
+  return `<button class="_card_k3f9" data-status="${s.status}">
+    <div class="_nm_k3f9">${esc(s.name)}</div>
+    ${s.aka ? `<div class="_aka_k3f9">also: ${esc(s.aka)}</div>` : ''}
+    <div class="_path_k3f9">${s.ss ? `<span class="_ss_k3f9">${esc(s.ss)}</span>` : ''}${s.props ? `<span>${s.props}</span>` : ''}
+      <span>${esc(posName(s.from))}</span><span class="_arw_k3f9">&rarr;</span><span>${esc(posName(s.to))}</span>
+    </div></button>`;
+}
+function cardRef(s) {
+  return `<button class="card st-${s.status}">
+    <div class="nm">${esc(s.name)}</div>
+    ${s.aka ? `<div class="aka">also: ${esc(s.aka)}</div>` : ''}
+    <div class="path">${s.ss ? `<span class="ss">${esc(s.ss)}</span>` : ''}${s.props ? `<span>${s.props}</span>` : ''}
+      <span>${esc(posName(s.from))}</span><span class="arw">&rarr;</span><span>${esc(posName(s.to))}</span>
+    </div></button>`;
+}
+function board(card) {
+  return '<div class="board">' + DesignSystem.statuses.map(k => {
+    const items = skills().filter(s => s.status === k);
+    return `<div><div class="col-head"><b>${DesignSystem.label[k]}</b><span class="count">${items.length}</span></div>
+      <div class="stack">${items.map(card).join('') || '<div class="empty">Nothing here yet</div>'}</div></div>`;
+  }).join('') + '</div>';
+}
+
+/* ---------------- render: map ---------------- */
+function renderMap() {
+  const ps = POS[state.discipline], ss = skills();
+  const W = 760, H = 520, cx = W / 2, cy = H / 2, R = Math.min(W, H) / 2 - 72;
+  const pt = {};
+  ps.forEach(([id], i) => {
+    const a = (i / ps.length) * Math.PI * 2 - Math.PI / 2;
+    pt[id] = { x: cx + R * Math.cos(a), y: cy + R * Math.sin(a) };
+  });
+
+  const enc = state.encoding;
+  const useCss = enc === 'css' || enc === 'both';
+  const useAttr = enc === 'attr' || enc === 'both';
+  const opa = DesignSystem.legacyOpacity;
+
+  /* The presentation-attribute encoding is deliberately given the WRONG
+     rung under "both" — got's opacity, whatever the real status — so the
+     cascade winner is unmistakable rather than a matter of squinting. */
+  const attrsFor = s => useAttr
+    ? ` stroke="var(--hue)" stroke-opacity="${enc === 'both' ? 1 : opa[s.status]}" stroke-width="${s.status === 'got' ? 2.2 : 1.5}" stroke-dasharray="${s.status === 'want' ? '4 4' : ''}" fill="none"`
+    : '';
+
+  const edges = ss.map(s => {
+    const a = pt[s.from], b = pt[s.to];
+    if (!a || !b) return '';
+    const cls = useCss ? ` class="${s.from === s.to ? '_loop_p2m8' : '_edge_p2m8'}" data-status="${s.status}"` : '';
+    if (s.from === s.to) {
+      const la = useAttr ? attrsFor(s).replace('4 4', '3 3') : '';
+      return `<circle cx="${a.x}" cy="${a.y - 26}" r="17"${cls}${la}><title>${esc(s.name)} (loops in place)</title></circle>`;
+    }
+    const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, dx = b.x - a.x, dy = b.y - a.y;
+    return `<path d="M${a.x} ${a.y} Q${mx - dy * .12} ${my + dx * .12} ${b.x} ${b.y}"${cls}${attrsFor(s)}><title>${esc(s.name)}: ${esc(posName(s.from))} → ${esc(posName(s.to))}</title></path>`;
+  }).join('');
+
+  const nodes = ps.map(([id, name]) => {
+    const deg = ss.filter(s => s.from === id || s.to === id).length;
+    const got = ss.filter(s => (s.from === id || s.to === id) && s.status === 'got').length;
+    const r = 7 + Math.min(deg, 10) * 1.1;          /* geometry: stays JS, stays an attribute */
+    const cls = useCss ? ` class="_node_p2m8" data-solid="${got > 0}"` : '';
+    const at = useAttr ? ` fill="${got ? 'var(--hue)' : 'var(--surface2)'}" stroke="var(--hue)" stroke-opacity="${got ? 1 : .4}" stroke-width="1.6"` : '';
+    const lcls = useCss ? ' class="_label_p2m8"' : '';
+    const lat = useAttr ? ' fill="var(--chalk)" font-size="12.5" font-family="Space Grotesk"' : '';
+    return `<g><circle cx="${pt[id].x}" cy="${pt[id].y}" r="${r}"${cls}${at}><title>${esc(name)} — ${deg} skills, ${got} solid</title></circle>
+      <text x="${pt[id].x}" y="${pt[id].y + r + 15}" text-anchor="middle"${lcls}${lat}>${esc(name)}</text></g>`;
+  }).join('');
+
+  document.getElementById('map').innerHTML = edges + nodes;
+
+  document.getElementById('legend').innerHTML = useCss
+    ? `<div class="_legend_p2m8">${DesignSystem.statuses.map(k => `<span data-status="${k}"><i></i>${DesignSystem.label[k]}</span>`).join('')}</div>`
+    : `<div class="ref"><div class="legend">
+        <span><i style="border-style:dashed;opacity:.35;border-color:var(--hue)"></i>Want</span>
+        <span><i style="opacity:.6;border-color:var(--hue)"></i>Working</span>
+        <span><i style="border-color:var(--hue)"></i>Got it</span></div></div>`;
+
+  const note = {
+    css: '<b>CSS classes.</b> The SVG carries geometry and <code>data-status</code> only. The opacity table is gone from JS — the three rungs are <code>--i-want/-working/-got</code>, the same tokens the cards read. The legend reads them too, so its hand-tuned .35/.6/1 stops being a fourth opinion.',
+    attr: '<b>Presentation attributes.</b> What ships today. It works, and it is why the Map was called the hard case: none of this is reachable from a CSS module, so status intensity lives in a JS object that no stylesheet can see.',
+    both: '<b>Both at once.</b> Every element has the attributes <i>and</i> the class, and the attributes claim every line is "got" (full opacity, 2.2 wide). The lines are still faint. Presentation attributes lose to any author rule, so the class wins — which means a partial port is not ambiguous, it is just the CSS.',
+  }[enc];
+  document.getElementById('mapnote').innerHTML = note;
+}
+
+/* ---------------- readout ---------------- */
+function readout() {
+  const cs = getComputedStyle(root);
+  /* Find a "want" edge whichever encoding is live: under the attribute-only
+     encoding there is no data-status to select on, so fall back to the faintest. */
+  const paths = [...document.querySelectorAll('#map path')];
+  const edge = paths.find(p => p.dataset.status === 'want')
+    || paths.sort((a, b) => +getComputedStyle(a).strokeOpacity - +getComputedStyle(b).strokeOpacity)[0];
+  const resolved = edge ? getComputedStyle(edge).strokeOpacity : '—';
+  const hue = cs.getPropertyValue('--hue').trim();
+  const rows = [
+    ['root[data-discipline]', root.dataset.discipline],
+    ['root style --hue', root.style.getPropertyValue('--hue').trim() || '(not set)'],
+    ['computed --hue', hue],
+    ['--i-want / working / got', ['--i-want', '--i-working', '--i-got'].map(v => cs.getPropertyValue(v).trim()).join(' / ')],
+    ['first "want" edge stroke-opacity', resolved],
+    ['map encoding', state.encoding],
+  ];
+  document.getElementById('readout').innerHTML = rows
+    .map(([k, v]) => `<div>${k}: <b class="${k.includes('stroke-opacity') || k.includes('computed') ? 'hit' : ''}">${esc(v)}</b></div>`).join('');
+}
+
+/* ---------------- walkthroughs ---------------- */
+const SCENARIOS = [
+  {
+    name: 'Hue is discipline',
+    blurb: 'One attribute on the root element has to repaint two components that share no CSS — a board of cards and an SVG graph. Watch the cards, the siteswap chips, the map edges and the map nodes all move together, then confirm the mechanism itself is invisible: flipping to the old JS style write changes nothing on screen.',
+    steps: [
+      ['Start juggling, attribute mechanism', () => { set({ discipline: 'juggling', mechanism: 'attr', encoding: 'css' }); }],
+      ['Switch to acro', () => set({ discipline: 'acro' })],
+      ['Switch back to juggling', () => set({ discipline: 'juggling' })],
+      ['Now drive it the old way (JS setProperty)', () => set({ mechanism: 'js' })],
+      ['Switch to acro again — same result, different writer', () => set({ discipline: 'acro' })],
+    ],
+    watch: 'Nothing downstream reads the attribute or the inline style. Both mechanisms only ever set <code>--hue</code> on <code>:root</code>, so every rule that reads <code>var(--hue)</code> — including rules inside a hashed CSS module — follows either way.',
+  },
+  {
+    name: 'Intensity is status',
+    blurb: 'Cycle one skill through want → working → got and watch three surfaces that express the rung three different ways: a card border, an SVG stroke, a legend swatch. If the ramp is one token set, all three move on the same click.',
+    steps: [
+      ['Reset to juggling, CSS map', () => set({ discipline: 'juggling', mechanism: 'attr', encoding: 'css' }, () => { skills().find(s => s.id === 'k4').status = 'want'; })],
+      ['441: want → working', () => cycle('k4')],
+      ['441: working → got', () => cycle('k4')],
+      ['441: got → want (wraps)', () => cycle('k4')],
+    ],
+    watch: '441 is a self-loop, so on the map it is the little circle above Cascade, not a line between two nodes. The card and the loop both read <code>--i-*</code>; only the <i>recipe</i> differs — a border colour one side, a stroke opacity the other.',
+  },
+  {
+    name: 'The Map, three ways',
+    blurb: 'The load-bearing question. Today the map writes stroke, fill and opacity as presentation attributes, which no CSS module can reach. Step through the CSS encoding, the current one, and the half-ported state where both are present and they disagree.',
+    steps: [
+      ['CSS classes (the proposal)', () => set({ encoding: 'css' })],
+      ['Presentation attributes (today)', () => set({ encoding: 'attr' })],
+      ['Both — attributes shout "got" at every line', () => set({ encoding: 'both' })],
+      ['Switch discipline while both are set', () => set({ discipline: state.discipline === 'juggling' ? 'acro' : 'juggling' })],
+    ],
+    watch: 'Under "both", the attributes ask for full-opacity 2.2px lines and are ignored. Presentation attributes sit below author stylesheets in the cascade — below even a single class selector — so there is no specificity war to lose here.',
+  },
+  {
+    name: 'When the webfont never arrives',
+    blurb: 'Fonts come from a render-blocking Google Fonts <link>. This app is used in a gym on bad wifi, which is the exact case the local-first store exists for. Kill the webfont and see what the design actually degrades to.',
+    steps: [
+      ['Reset', () => set({ discipline: 'juggling', encoding: 'css' }, () => { state.sysfont = false; })],
+      ['Drop to the fallback stack', () => set({}, () => { state.sysfont = true; })],
+      ['Back to Space Grotesk', () => set({}, () => { state.sysfont = false; })],
+    ],
+    watch: 'The layout holds — nothing is sized off the webfont — but the mono columns in the card paths and the counts lose their alignment character. The question is whether that is worth a third-party request on the critical path.',
+  },
+];
+let tab = 0, step = 0;
+
+function renderTabs() {
+  document.getElementById('tabs').innerHTML = SCENARIOS
+    .map((s, i) => `<button data-tab="${i}" aria-selected="${i === tab}">${esc(s.name)}</button>`).join('');
+  const sc = SCENARIOS[tab];
+  document.getElementById('scenario').innerHTML = `
+    <p>${sc.blurb}</p>
+    <div class="steps">${sc.steps.map((s, i) =>
+      `<button class="step" data-step="${i}" data-state="${i < step ? 'done' : i === step ? 'now' : ''}">
+        <span class="n">${i + 1}</span><span>${esc(s[0])}</span></button>`).join('')}</div>
+    <div class="note">${sc.watch}</div>`;
+}
+
+/* ---------------- wiring ---------------- */
+function cycle(id) {
+  const s = skills().find(x => x.id === id) || skills()[0];
+  s.status = DesignSystem.next(s.status);
+  render();
+}
+function set(patch, before) {
+  if (before) before();
+  Object.assign(state, patch);
+  render();
+}
+function render() {
+  DesignSystem.applyDiscipline(root, state.discipline, state.mechanism);
+  document.body.classList.toggle('sysfont', state.sysfont);
+  document.getElementById('boardCand').innerHTML = board(cardCand);
+  document.getElementById('boardRef').innerHTML = board(cardRef);
+  renderMap();
+  renderTabs();
+  document.querySelectorAll('[data-act="disc"]').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === state.discipline));
+  document.querySelectorAll('[data-act="mech"]').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === state.mechanism));
+  document.querySelectorAll('[data-act="enc"]').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === state.encoding));
+  readout();
+}
+
+document.addEventListener('click', e => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  if (b.dataset.act === 'disc') set({ discipline: b.dataset.v });
+  else if (b.dataset.act === 'mech') set({ mechanism: b.dataset.v });
+  else if (b.dataset.act === 'enc') set({ encoding: b.dataset.v });
+  else if (b.dataset.act === 'cycle') cycle('k4');
+  else if (b.dataset.act === 'font') set({}, () => { state.sysfont = !state.sysfont; });
+  else if (b.dataset.tab !== undefined) { tab = +b.dataset.tab; step = 0; SCENARIOS[tab].steps[0][1](); }
+  else if (b.dataset.step !== undefined) {
+    const i = +b.dataset.step;
+    SCENARIOS[tab].steps[i][1]();
+    step = Math.min(i + 1, SCENARIOS[tab].steps.length);
+    renderTabs();
+  }
+});
+
+render();
+</script>
+</body>
+</html>
