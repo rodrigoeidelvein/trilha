@@ -91,9 +91,15 @@ bad wifi, they log a run, and it must appear instantly and survive a refresh
 whether or not the network cooperated. Supabase is a *replica*, not an
 authority.
 
-So: one Zustand store holding the whole deck, persisted to `localStorage`, with
-writes fired at Supabase optimistically. If a write fails, surface it — never
-swallow it, never silently roll back.
+So: one Zustand store holding the whole deck, persisted to `localStorage` by the
+`persist` middleware, with writes fired at Supabase optimistically. If a write
+fails, surface it — never swallow it, never silently roll back.
+
+A failed write also marks its row **unsent**, and an unsent row keeps its local
+version when `pull()` refills the deck, so the boot after a bad session does not
+discard what you logged (ADR-0014). Deletes are the exception and are not
+protected: remembering a deletion needs a tombstone, and a tombstone is the
+write queue below (ADR-0015).
 
 ### Why HashRouter
 
@@ -238,6 +244,10 @@ every asset 404s on Pages. If you rename the repo, change it.
 - Don't add: state machines, a service layer, dependency injection, an ORM,
   a component library, or an offline write queue. If one of those becomes
   genuinely necessary, argue for it explicitly first.
+  - The unsent set is **not** the banned write queue and is not up for deletion
+    on sight: it stores which rows differ, never an operation log, so it has no
+    order, no coalescing rules and no scheduler. ADR-0014 draws the line and
+    ADR-0015 is what holds it.
 
 ---
 
