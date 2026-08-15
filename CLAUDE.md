@@ -209,27 +209,33 @@ bun run gen:types  # regenerate src/data/db.types.ts from the live schema
 ## Gotchas
 
 **Vite env vars are baked in at build time.** `VITE_SUPABASE_URL` and
-`VITE_SUPABASE_ANON_KEY` come from `.env.local` in dev and from GitHub Actions
-secrets in CI. A missing one throws in `vite.config.ts`, so there is no
-"unconfigured" runtime state and the client is never null (ADR-0010). This is
-why Pages is deployed by a workflow rather than served
-from a branch.
+`VITE_SUPABASE_PUBLISHABLE_KEY` come from `.env.local` in dev and from GitHub
+Actions secrets of the same names in CI. A missing one throws in
+`vite.config.ts`, so there is no "unconfigured" runtime state and the client is
+never null (ADR-0010). This is why Pages is deployed by a workflow rather than
+served from a branch (ADR-0021).
 
-**The anon key is public and that is fine.** It's an identifier, not a secret;
-row-level security is what protects the data. `service_role` must never appear
-in this repo or in any `VITE_`-prefixed variable — that key bypasses RLS.
+**The publishable key is public and that is fine.** It's an identifier, not a
+secret; row-level security is what protects the data. It is a `sb_publishable_…`
+key, not the legacy anon JWT — the dashboard calls it the publishable key and so
+does this repo. `service_role` must never appear in this repo, in any
+`VITE_`-prefixed variable, or in the repo's Actions secrets — that key bypasses
+RLS.
 
 **`role` is a reserved word in SQL.** The acro role column is `acro_role`.
 
 **Supabase pauses free projects after 7 days of no database activity.**
-`.github/workflows/keepalive.yml` pings it daily. If the app suddenly can't
-connect, check whether the project is paused before debugging code.
+`.github/workflows/keepalive.yml` reads the `heartbeat` row daily with the
+publishable key — no write, no privileged key (ADR-0022). If the app suddenly
+can't connect, check whether the project is paused before debugging code.
 
 **GitHub disables scheduled workflows after 60 days without commits.** If you
 go quiet for two months, re-enable the keepalive job.
 
-**`base` in `vite.config.ts` must match the repo name** (`/trilha-app/`) or
-every asset 404s on Pages. If you rename the repo, change it.
+**`base` in `vite.config.ts` is `'./'` and does not name the repo.** Assets
+resolve against the page, so the build works at whatever path Pages mounts it
+on and renaming the repo changes nothing but the URL (ADR-0020). Do not
+"fix" it to `/trilha/`.
 
 ---
 

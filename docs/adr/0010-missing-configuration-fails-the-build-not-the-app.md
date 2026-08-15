@@ -37,3 +37,11 @@ is for.
 **A present-but-wrong URL is still a runtime failure**, and correctly so. It is
 indistinguishable from the project being paused or the wifi being bad, which is
 #8's sync-failure contract, not a configuration state.
+
+## Amended by ADR-0021
+
+The second variable is `VITE_SUPABASE_PUBLISHABLE_KEY`, not
+`VITE_SUPABASE_ANON_KEY`. The project's key is a `sb_publishable_…` key and the
+dashboard no longer shows an "anon key" to go looking for. Only the name
+changes; everything decided above holds, and `vite.config.ts` throws on the new
+name.
