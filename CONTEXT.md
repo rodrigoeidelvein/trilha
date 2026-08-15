@@ -11,7 +11,9 @@ nodes, and what you practise is a path through them.
 **Position**:
 A state you can hold and be recognised in — a juggling pattern like Cascade, or
 an acro shape like Throne. Positions are rows, never free text, so that two
-spellings of one shape are one node.
+spellings of one shape are one node. Names are unique per Discipline once
+lowercased and stripped of everything that is not a letter or digit, so "hip
+key" and "hipkey" cannot both exist (ADR-0023).
 _Avoid_: shape, pattern, state, node (when speaking about the domain rather than the graph)
 
 **Skill**:
