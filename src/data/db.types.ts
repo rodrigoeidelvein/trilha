@@ -42,7 +42,7 @@ export type Database = {
           note: string
           partner: string | null
           props: number | null
-          skill_id: string | null
+          skill_id: string
           user_id: string
         }
         Insert: {
@@ -57,7 +57,7 @@ export type Database = {
           note?: string
           partner?: string | null
           props?: number | null
-          skill_id?: string | null
+          skill_id: string
           user_id?: string
         }
         Update: {
@@ -72,7 +72,7 @@ export type Database = {
           note?: string
           partner?: string | null
           props?: number | null
-          skill_id?: string | null
+          skill_id?: string
           user_id?: string
         }
         Relationships: [
@@ -144,42 +144,42 @@ export type Database = {
           aka: string
           created_at: string
           discipline: string
-          from_position: string | null
+          from_position: string
           id: string
           name: string
           notes: string
           prop_count: number | null
           siteswap: string
           status: string
-          to_position: string | null
+          to_position: string
           user_id: string
         }
         Insert: {
           aka?: string
           created_at?: string
           discipline: string
-          from_position?: string | null
+          from_position: string
           id?: string
           name: string
           notes?: string
           prop_count?: number | null
           siteswap?: string
           status?: string
-          to_position?: string | null
+          to_position: string
           user_id?: string
         }
         Update: {
           aka?: string
           created_at?: string
           discipline?: string
-          from_position?: string | null
+          from_position?: string
           id?: string
           name?: string
           notes?: string
           prop_count?: number | null
           siteswap?: string
           status?: string
-          to_position?: string | null
+          to_position?: string
           user_id?: string
         }
         Relationships: [

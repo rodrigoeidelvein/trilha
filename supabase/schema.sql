@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS "public"."logs" (
     "user_id" "uuid" DEFAULT "auth"."uid"() NOT NULL,
     "logged_on" "date" DEFAULT CURRENT_DATE NOT NULL,
     "discipline" "text" NOT NULL,
-    "skill_id" "uuid",
+    "skill_id" "uuid" NOT NULL,
     "props" integer,
     "best_run" integer,
     "drops" integer,
@@ -147,8 +147,8 @@ CREATE TABLE IF NOT EXISTS "public"."skills" (
     "name" "text" NOT NULL,
     "aka" "text" DEFAULT ''::"text" NOT NULL,
     "discipline" "text" NOT NULL,
-    "from_position" "uuid",
-    "to_position" "uuid",
+    "from_position" "uuid" NOT NULL,
+    "to_position" "uuid" NOT NULL,
     "siteswap" "text" DEFAULT ''::"text" NOT NULL,
     "prop_count" integer,
     "status" "text" DEFAULT 'want'::"text" NOT NULL,
@@ -195,6 +195,10 @@ CREATE INDEX "positions_user_disc" ON "public"."positions" USING "btree" ("user_
 
 
 
+CREATE UNIQUE INDEX "positions_user_disc_name" ON "public"."positions" USING "btree" ("user_id", "discipline", "regexp_replace"("lower"("name"), '[^a-z0-9]'::"text", ''::"text", 'g'::"text"));
+
+
+
 CREATE INDEX "sequences_user_disc" ON "public"."sequences" USING "btree" ("user_id", "discipline");
 
 
@@ -224,12 +228,12 @@ ALTER TABLE ONLY "public"."sequences"
 
 
 ALTER TABLE ONLY "public"."skills"
-    ADD CONSTRAINT "skills_from_position_fkey" FOREIGN KEY ("from_position") REFERENCES "public"."positions"("id") ON DELETE CASCADE;
+    ADD CONSTRAINT "skills_from_position_fkey" FOREIGN KEY ("from_position") REFERENCES "public"."positions"("id") ON DELETE RESTRICT;
 
 
 
 ALTER TABLE ONLY "public"."skills"
-    ADD CONSTRAINT "skills_to_position_fkey" FOREIGN KEY ("to_position") REFERENCES "public"."positions"("id") ON DELETE CASCADE;
+    ADD CONSTRAINT "skills_to_position_fkey" FOREIGN KEY ("to_position") REFERENCES "public"."positions"("id") ON DELETE RESTRICT;
 
 
 

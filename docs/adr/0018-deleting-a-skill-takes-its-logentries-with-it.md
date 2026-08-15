@@ -50,3 +50,14 @@ ADR-0015.
 prototype has no delete-position UI and the port does not add one — strict
 parity. If it is ever added it is a two-level cascade and the confirmation has
 to count both levels.
+
+## Amended by #10
+
+The last consequence no longer holds. Both `skills → positions` foreign keys are
+`ON DELETE RESTRICT` (`supabase/schema.sql:231`, `:236`), which is what ADR-0003
+decided and #10 applied — the paragraph above described the schema as it stood,
+not as ADR-0003 had already settled it. There is no dormant cascade to inherit:
+deleting a Position with a Skill on it is *refused*, so if a delete-position UI
+is ever added it counts edges and says no, rather than counting two levels of
+destruction. Everything else here stands, including the deliberate cascade from
+`logs` to `skills` (`supabase/schema.sql:211`).

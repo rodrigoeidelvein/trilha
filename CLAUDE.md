@@ -192,6 +192,11 @@ bun run gen:types  # regenerate src/data/db.types.ts from the live schema
 - **Types from the database are generated**, not written. `supabase/schema.sql`
   is the single source of truth. Change SQL → run `bun run gen:types` → fix
   what breaks. Never hand-edit `db.types.ts`.
+- **A schema change is a migration and a re-dump.** `schema.sql` is a `pg_dump`
+  — it records the schema, it cannot apply one. Write the change as
+  `supabase/migrations/<timestamp>_<name>.sql`, apply it with `supabase db push`
+  (needs `supabase link` and the database password — human-in-the-loop), then
+  re-dump `schema.sql` and regenerate the types.
 - **Mapping lives only in `data/mappers.ts`.** If `from_position` or `acro_role`
   appears anywhere else in `src/`, that's a bug.
 - **Domain functions take plain data and return plain data.** No classes, no
