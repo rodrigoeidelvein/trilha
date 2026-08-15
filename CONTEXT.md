@@ -107,6 +107,22 @@ the server is the replica; "Loading your deck…" is the one state where no loca
 copy exists yet.
 _Avoid_: data, database, collection, library
 
+**Unsent**:
+A row the Deck holds that the replica does not, because its write failed.
+Unsent rows are remembered by id, survive a restart, and keep their local
+version when the Deck is refilled from the server — they are what "the Deck is
+the authority" costs in the one case where it costs anything. A delete is never
+Unsent: there is no row left to remember it by, so a delete that fails comes
+back.
+_Avoid_: dirty, pending, queued, unsynced, offline
+
+**Replay**:
+The one attempt to re-send every Unsent row, made when the app opens and again
+whenever the user asks for it by hand. It sends what the rows say now, not what
+they said when the write failed, so it needs no order and keeps no history —
+which is what separates it from a write queue.
+_Avoid_: retry, flush, drain, sync
+
 **Hue**:
 The colour channel that carries Discipline — amber for juggling, teal for acro.
 It is one custom property, `--hue`, reassigned on the root element when the
