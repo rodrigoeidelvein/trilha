@@ -100,6 +100,20 @@ collide with each other. Both disciplines name their shapes in ASCII words and
 the app is single-user, so this is accepted rather than worked around — the
 alternative is a normalisation the domain function cannot mirror in one line.
 
-**Seeding must not seed a duplicate.** `data/seed.ts` runs once on first boot
-and its Positions now have to be distinct under normalisation, not merely
-distinct as strings.
+**Seeding must not seed a duplicate**, and this is not hypothetical. The
+prototype's `seedRemote()` (`app.js:195`) ran twice about 2ms apart on
+2026-08-14 and inserted the whole starter deck twice — 34 Positions, 64 Skills,
+two disjoint copies of the same graph, both of which then got used, so six
+juggling Skills ended up carrying a different Status on each side. It is a
+check-then-act: `pull()`, and seed if the deck came back empty, with nothing in
+the database able to refuse the second write. This index is that refusal — a
+second seed now fails on the first Position instead of doubling the deck — and
+it is why the migration adding it had to be preceded by one merging the two
+decks. `data/seed.ts` still owes its own guard; the index is the backstop, not
+the design.
+
+**Nothing records when a row was last written.** The merge could not ask which
+of two Statuses was newer, because there is no `updated_at` on any table, only
+`created_at`. It resolved on "the more advanced Status wins" instead. Worth
+knowing before anyone reaches for last-write-wins on any future conflict: the
+column it would need does not exist.
