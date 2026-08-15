@@ -1,0 +1,6 @@
+.loading {
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13.5px;
+}

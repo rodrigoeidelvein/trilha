@@ -1,0 +1,37 @@
+.gate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.box {
+  width: 100%;
+  max-width: 390px;
+}
+
+.wordmark {
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+
+.wordmark span {
+  color: var(--hue);
+}
+
+.lede {
+  color: var(--muted);
+  font-size: 14px;
+  margin-bottom: 26px;
+  line-height: 1.5;
+}
+
+.note {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 16px;
+  line-height: 1.5;
+}

@@ -1,0 +1,55 @@
+.form {
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 15px;
+  background: var(--surface);
+  margin-bottom: 22px;
+}
+
+.entry {
+  border-bottom: 1px solid var(--line);
+  padding: 12px 0;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.when {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--muted);
+  min-width: 56px;
+}
+
+.what {
+  flex: 1;
+  font-size: 13.5px;
+}
+
+.meta {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 2px;
+  font-family: var(--font-mono);
+}
+
+.felt {
+  display: flex;
+  gap: 5px;
+}
+
+.felt button {
+  flex: 1;
+  padding: 9px 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.felt button[aria-pressed='true'] {
+  border-color: var(--hue);
+  color: var(--hue);
+  background: color-mix(in srgb, var(--hue) 10%, transparent);
+}
