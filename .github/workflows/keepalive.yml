@@ -1,0 +1,50 @@
+name: keepalive
+
+# Supabase pauses a free project after 7 days of inactivity, and a paused
+# project looks exactly like a bug: the deck renders from localStorage and every
+# write fails. Daily read, no write, no privileged key — see ADR-0022.
+#
+# GitHub disables scheduled workflows after 60 days without commits. If the repo
+# goes quiet for two months, re-enable this one before trusting it.
+
+on:
+  schedule:
+    - cron: "17 7 * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Read the heartbeat row
+        env:
+          URL: ${{ secrets.VITE_SUPABASE_URL }}
+          KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${URL}" ] || [ -z "${KEY}" ]; then
+            echo "::error::VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY must be set as repository secrets"
+            exit 1
+          fi
+
+          status=$(curl -sS --max-time 30 -o body.json -w '%{http_code}' \
+            -H "apikey: ${KEY}" \
+            -H "Authorization: Bearer ${KEY}" \
+            "${URL}/rest/v1/heartbeat?select=pinged_at")
+
+          echo "HTTP ${status}"
+          cat body.json
+          echo
+
+          if [ "${status}" != "200" ]; then
+            echo "::error::heartbeat read returned ${status} — is the project paused, or the key rotated?"
+            exit 1
+          fi
+
+          # A 200 with an empty array means the key reached PostgREST but the row
+          # did not come back, which is a broken ping wearing a success code.
+          if ! grep -q pinged_at body.json; then
+            echo "::error::heartbeat read returned 200 with no row"
+            exit 1
+          fi
