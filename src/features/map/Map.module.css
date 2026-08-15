@@ -1,0 +1,104 @@
+.wrap {
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.wrap svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/*
+ * One ramp, read three ways: an edge's opacity, a self-loop's, and the
+ * legend's swatch. The Map used to keep its own copy of these numbers in a
+ * JavaScript table where no stylesheet could see it (ADR-0012).
+ */
+.edge,
+.selfLoop {
+  fill: none;
+  stroke: var(--hue);
+}
+
+.edge {
+  stroke-width: 1.5px;
+}
+
+.edge[data-status='got'] {
+  stroke-width: 2.2px;
+}
+
+.edge[data-status='want'] {
+  stroke-dasharray: 4 4;
+}
+
+.selfLoop {
+  stroke-width: 1.6px;
+}
+
+.selfLoop[data-status='want'] {
+  stroke-dasharray: 3 3;
+}
+
+:is(.edge, .selfLoop)[data-status='want'] {
+  stroke-opacity: var(--i-want);
+}
+
+:is(.edge, .selfLoop)[data-status='working'] {
+  stroke-opacity: var(--i-working);
+}
+
+:is(.edge, .selfLoop)[data-status='got'] {
+  stroke-opacity: var(--i-got);
+}
+
+.node {
+  fill: var(--surface2);
+  stroke: var(--hue);
+  stroke-opacity: 0.4;
+  stroke-width: 1.6px;
+}
+
+.node[data-solid='true'] {
+  fill: var(--hue);
+  stroke-opacity: 1;
+}
+
+/* font-family is inherited from body, so it is not named here. */
+.label {
+  fill: var(--chalk);
+  font-size: 12.5px;
+}
+
+.legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.swatch {
+  display: inline-block;
+  width: 20px;
+  height: 0;
+  border-top: 2px solid var(--hue);
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.swatch[data-status='want'] {
+  border-top-style: dashed;
+  opacity: var(--i-want);
+}
+
+.swatch[data-status='working'] {
+  opacity: var(--i-working);
+}
+
+.swatch[data-status='got'] {
+  opacity: var(--i-got);
+}

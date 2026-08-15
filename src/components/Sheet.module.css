@@ -1,0 +1,46 @@
+.scrim {
+  position: fixed;
+  inset: 0;
+  background: var(--scrim);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 60;
+}
+
+.sheet {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  width: 100%;
+  max-width: 480px;
+  padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
+  max-height: 88vh;
+  overflow: auto;
+}
+
+.title {
+  font-size: 16px;
+  margin-bottom: 14px;
+}
+
+.actions {
+  display: flex;
+  gap: 9px;
+  margin-top: 18px;
+}
+
+.actions > * {
+  flex: 1;
+  text-align: center;
+}
+
+@media (min-width: 721px) {
+  .scrim {
+    align-items: center;
+  }
+
+  .sheet {
+    border-radius: var(--r-lg);
+  }
+}

@@ -1,0 +1,153 @@
+.chain {
+  display: flex;
+  flex-direction: column;
+  margin: 14px 0;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 11px 13px;
+}
+
+.idx {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--muted);
+  min-width: 18px;
+}
+
+.body {
+  flex: 1;
+}
+
+.nm {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.pos {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.ss {
+  display: inline-block;
+  margin-left: 6px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 12px;
+  padding: 1px 6px;
+  border-radius: var(--r-xs);
+  background: color-mix(in srgb, var(--hue) 16%, transparent);
+  color: var(--hue);
+}
+
+.jointOk,
+.jointBad {
+  padding: 4px 0 4px 30px;
+  font-size: 12px;
+  font-family: var(--font-mono);
+}
+
+.jointOk {
+  color: color-mix(in srgb, var(--hue) 80%, var(--chalk));
+}
+
+.jointBad {
+  color: var(--warn);
+}
+
+.missing {
+  border: 1px solid var(--warn-line);
+  background: var(--warn-wash);
+  border-radius: var(--r);
+  padding: 12px 14px;
+  font-size: 13px;
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+
+.verdictGood,
+.verdictLoop,
+.verdictBad {
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 14px;
+  margin-top: 6px;
+  font-size: 13.5px;
+}
+
+.verdictGood h3,
+.verdictLoop h3,
+.verdictBad h3 {
+  font-size: 14.5px;
+  margin-bottom: 4px;
+}
+
+.verdictGood {
+  border-color: var(--hue);
+  background: color-mix(in srgb, var(--hue) 8%, transparent);
+}
+
+.verdictLoop {
+  border-color: var(--hue);
+  background: color-mix(in srgb, var(--hue) 14%, transparent);
+}
+
+.verdictBad {
+  border-color: var(--warn);
+  background: var(--warn-wash);
+}
+
+.bridge {
+  display: block;
+  width: 100%;
+  text-align: left;
+  margin-top: 7px;
+  padding: 8px 11px;
+  border: 1px dashed var(--line);
+  border-radius: var(--r-sm);
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.bridge:hover {
+  border-color: var(--hue);
+  color: var(--chalk);
+}
+
+.faint {
+  opacity: 0.6;
+}
+
+.picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 8px;
+}
+
+.picker button {
+  padding: 6px 11px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.picker button:hover {
+  border-color: var(--hue);
+  color: var(--chalk);
+}
+
+.picker button.live {
+  border-color: color-mix(in srgb, var(--hue) 60%, transparent);
+  color: var(--chalk);
+}

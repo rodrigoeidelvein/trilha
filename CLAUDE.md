@@ -138,10 +138,14 @@ that isn't a token, add a token.
 
 ```
 src/
+  main.tsx         fonts, global styles, the root
+  App.tsx          hydration gate -> auth phase -> router
+  Shell.tsx        header, nav, footer, sync badge
+  labels.ts        the words the UI puts on domain values
   domain/          Pure TypeScript. No React. No Supabase. No I/O.
     types.ts       Position, Skill, LogEntry, Sequence, Discipline, Status
     graph.ts       sequence resolution, connectivity, loops, bridges
-    siteswap.ts    siteswap validation and ball count
+    positions.ts   the normalisation behind unique position names
     *.test.ts      bun test lives next to the code
   data/
     supabase.ts    client singleton
@@ -152,12 +156,15 @@ src/
   store/
     useDeck.ts     the deck + optimistic sync
     useUi.ts       discipline, chain-in-progress, board mode (view is the route)
+    select.ts      sorting, filtering and lookup, derived from the rows
   features/
     skills/ log/ build/ map/ auth/
-  components/      shared primitives only (Sheet, Toast, Seg, Card)
+  components/      shared primitives only (Sheet, Toasts, Seg)
   styles/
     tokens.css base.css
 ```
+
+`siteswap.ts` is roadmap item 3 and does not exist yet.
 
 ### The one architectural rule
 
@@ -264,7 +271,8 @@ on and renaming the repo changes nothing but the URL (ADR-0020). Do not
 
 ## Roadmap, roughly
 
-1. Port the four views from the prototype
+1. ~~Port the four views from the prototype~~ — landed; the prototype is gone
+   from the working tree and lives at `b12af46`
 2. Cycle **discovery** — surface washing machines the user already has the
    pieces for, rather than waiting for them to build one by hand
 3. Siteswap validation on skill entry (`(i + s[i]) mod period` must be a

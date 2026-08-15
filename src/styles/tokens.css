@@ -1,0 +1,54 @@
+/**
+ * The one file where a literal colour is allowed.
+ *
+ * Hue carries Discipline and the ramp carries Status (ADR-0011). Nothing below
+ * the root knows which Discipline it is drawing: the swap is one selector, and
+ * the indirection is preserved — `--hue: var(--acro)`, never a hex — so moving
+ * `--acro` still moves everything downstream.
+ */
+
+:root {
+  --ink: #10161d;
+  --surface: #18222c;
+  --surface2: #202d39;
+  --line: #2e3e4c;
+  --chalk: #e9eff4;
+  --muted: #7e93a4;
+
+  --juggle: #ffb627;
+  --acro: #2fd9c4;
+  --hue: var(--juggle);
+  /* The only ink-on-hue value in the app. */
+  --on-hue: #0c1116;
+
+  --warn: #ff7a6b;
+  --warn-line: rgba(255, 122, 107, 0.35);
+  --warn-wash: rgba(255, 122, 107, 0.07);
+
+  /* Genuinely darker than --ink, and not a mix of it. */
+  --scrim: rgba(8, 12, 16, 0.7);
+
+  --font: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'Space Mono', ui-monospace, monospace;
+
+  --r-xs: 5px;
+  --r-sm: 8px;
+  --r: 10px;
+  --r-lg: 14px;
+  --r-xl: 16px;
+  --r-pill: 99px;
+
+  /*
+   * The ramp: three rungs of Status intensity, as percentages, because a
+   * percentage is valid both as a color-mix() proportion and directly as
+   * stroke-opacity. One token therefore serves a card border and an SVG
+   * stroke. The tokens carry the rung, not the recipe.
+   */
+  --i-want: 22%;
+  --i-working: 55%;
+  --i-got: 100%;
+}
+
+:root[data-discipline='acro'] {
+  --hue: var(--acro);
+}
